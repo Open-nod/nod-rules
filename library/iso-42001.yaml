@@ -1,0 +1,49 @@
+# nod Compliance Pack: ISO/IEC 42001 (AIMS)
+# NOTE: This file checks for the existence of mandatory artifacts/documents required by ISO 42001.
+# It does NOT contain the proprietary text of the standard. Users must license the standard from ISO.
+
+profiles:
+  iso_42001_structure:
+    badge_label: "ISO 42001 Aligned"
+    requirements:
+      # Clause 5.2: AI Policy
+      - id: "## AI Policy"
+        control_id: "ISO 42001: 5.2"
+        severity: "CRITICAL"
+        remediation: "Required Artifact: Top management must establish and document an AI Policy."
+
+      # Clause 6.1.2: AI Risk Assessment
+      - id: "## AI Risk Assessment"
+        control_id: "ISO 42001: 6.1.2"
+        severity: "HIGH"
+        remediation: "Required Artifact: Document the process and results of AI risk identification and analysis."
+
+      # Clause 6.1.3: Risk Treatment
+      - id: "## Risk Treatment Plan"
+        control_id: "ISO 42001: 6.1.3"
+        severity: "HIGH"
+        remediation: "Required Artifact: Document options and plans for addressing identified AI risks."
+
+      # Clause 6.2: AI Objectives
+      - id: "## AI Objectives"
+        control_id: "ISO 42001: 6.2"
+        severity: "MEDIUM"
+        remediation: "Required Artifact: Document specific, measurable AI objectives for relevant functions."
+
+      # Clause 7.2: Competence
+      - id: "## Competence & Training"
+        control_id: "ISO 42001: 7.2"
+        severity: "MEDIUM"
+        remediation: "Required Artifact: Evidence of competence/training for persons doing work under the organization's control."
+
+      # Annex A.6.2: AI Impact Assessment
+      - id: "## AI Impact Assessment"
+        control_id: "ISO 42001: A.6.2"
+        severity: "HIGH"
+        remediation: "Required Artifact (Control): Assessment of potential consequences on individuals, society, and groups."
+
+      # Annex A.9.1: Data for AI Systems
+      - id: "## Data Governance"
+        control_id: "ISO 42001: A.9.1"
+        severity: "HIGH"
+        remediation: "Required Artifact (Control): Document data acquisition, quality, and management processes."
