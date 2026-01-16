@@ -1,0 +1,76 @@
+# nod Compliance Pack: OWASP Top 10 for LLM Applications
+# Version: 1.2 (Complete coverage of LLM01-LLM10)
+
+profiles:
+  owasp_llm_top10:
+    badge_label: "OWASP LLM Top 10 Aligned"
+    requirements:
+      # LLM01: Prompt Injection
+      - id: "#+.*(Input Validation|Prompt Injection)"
+        label: "Prompt Injection Defense"
+        control_id: "LLM01"
+        severity: "CRITICAL"
+        remediation: "LLM01: Define guardrails to prevent prompt injection (e.g., delimiters, parameterization)."
+
+      # LLM02: Insecure Output Handling
+      - id: "#+.*Output Sanitization"
+        label: "Output Handling"
+        control_id: "LLM02"
+        severity: "HIGH"
+        remediation: "LLM02: Output must be sanitized to prevent XSS or downstream code execution."
+
+      # LLM03: Training Data Poisoning
+      - id: "#+.*(Training Data Security|Data Sanitization)"
+        label: "Data Poisoning Defense"
+        control_id: "LLM03"
+        severity: "HIGH"
+        remediation: "LLM03: Document data provenance, sandboxing, and sanitization to prevent training data poisoning."
+
+      # LLM04: Model Denial of Service
+      - id: "#+.*(Rate Limiting|Resource Management)"
+        label: "DoS Protection"
+        control_id: "LLM04"
+        severity: "MEDIUM"
+        remediation: "LLM04: Define resource limits (context window, inference caps) to prevent Model DoS."
+
+      # LLM05: Supply Chain Vulnerabilities
+      - id: "#+.*(Supply Chain|Model Provenance)"
+        label: "Supply Chain Security"
+        control_id: "LLM05"
+        severity: "HIGH"
+        remediation: "LLM05: Verify integrity of third-party models and datasets (e.g., SBOM, signatures)."
+
+      # LLM06: Sensitive Information Disclosure
+      - id: "#+.*(PII Filtering|Data Leakage)"
+        label: "Sensitive Info Disclosure"
+        control_id: "LLM06"
+        severity: "CRITICAL"
+        remediation: "LLM06: Define mechanisms to detect and filter sensitive information (PII) in output."
+
+      # LLM07: Insecure Plugin Design
+      - id: "#+.*(Plugin Security|Extension Architecture)"
+        label: "Plugin Security"
+        control_id: "LLM07"
+        severity: "HIGH"
+        remediation: "LLM07: Plugins must enforce strict parameterized inputs and least-privilege access."
+
+      # LLM08: Excessive Agency
+      - id: "#+.*(Permissions|Human-in-the-Loop)"
+        label: "Agency & Permissions"
+        control_id: "LLM08"
+        severity: "HIGH"
+        remediation: "LLM08: Limit agent autonomy. Define permission scopes and required human approval steps."
+
+      # LLM09: Overreliance
+      - id: "#+.*(Disclaimers|Citation)"
+        label: "Overreliance Prevention"
+        control_id: "LLM09"
+        severity: "MEDIUM"
+        remediation: "LLM09: Document how users are informed of AI limitations (e.g., citations, confidence scores)."
+
+      # LLM10: Model Theft
+      - id: "#+.*(Intellectual Property|Access Control)"
+        label: "Model Theft Protection"
+        control_id: "LLM10"
+        severity: "MEDIUM"
+        remediation: "LLM10: Define access controls, watermarking, or logging to detect/prevent model extraction."
