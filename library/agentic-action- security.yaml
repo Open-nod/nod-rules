@@ -1,0 +1,82 @@
+# nod Compliance Pack: Agentic Action Security (AAS)
+# Combined Baseline: AAIF Standard, OpenSSF Skill Patterns, and Loop Governance
+
+profiles:
+  agent_security_aas:
+    badge_label: "Agentic Safety Aligned"
+    
+    requirements:
+      # --- AS: Agentic Foundation (Standardization) ---
+      - id: "#+.*(AGENTS.md|Project Instructions|security.md|.cursorrules)"
+        label: "Agent Specification"
+        control_id: "AAS-AS.1"
+        severity: "HIGH"
+        remediation: "AS.1: Provide a machine-readable instruction file (e.g., AGENTS.md) to define intent and boundaries."
+
+      # --- EX: Execution Guardrails (Isolation) ---
+      - id: "#+.*(Sandbox|Container|Isolation|MicroVM)"
+        label: "Execution Isolation"
+        control_id: "AAS-EX.1"
+        severity: "CRITICAL"
+        remediation: "EX.1: Define a sandboxed environment for agent code execution to prevent host system escape."
+
+      - id: "#+.*(Least Privilege|No Sudo|Non-root)"
+        label: "Principle of Least Privilege"
+        control_id: "AAS-EX.2"
+        severity: "HIGH"
+        remediation: "EX.2: Explicitly forbid root access and restrict the agent's file system write-scope."
+
+      # --- LG: Loop Governance (Recursion) ---
+      - id: "#+.*(Iteration Limit|Max Loops|Termination Condition)"
+        label: "Loop Termination"
+        control_id: "AAS-LG.1"
+        severity: "HIGH"
+        remediation: "LG.1: Define maximum iteration counts to prevent infinite 'Ralph Wiggum' recursive loops."
+
+      # --- SK: Skill & Tool Integrity (OpenSSF Patterns) ---
+      - id: "#+.*(Verified Skill|Signed Tool|Capability Manifest)"
+        label: "Skill Integrity"
+        control_id: "AAS-SK.1"
+        severity: "CRITICAL"
+        remediation: "SK.1: Every tool (Skill) available to the agent must have a verified manifest and defined capabilities."
+
+      # --- HI: Human-In-The-Loop ---
+      - id: "#+.*(Human-in-the-Loop|HITL|Manual Approval)"
+        label: "HITL Checkpoints"
+        control_id: "AAS-HI.1"
+        severity: "HIGH"
+        remediation: "HI.1: Define high-impact actions (deletions, config changes) that require human verification."
+
+    red_flags:
+      # --- Behavioral Misalignment ---
+      - pattern: "(ignore|bypass|override).*policy"
+        label: "Policy Subversion"
+        control_id: "AAS-BM.1"
+        severity: "CRITICAL"
+        remediation: "BM.1: The agent is attempting to circumvent established security instructions."
+
+      - pattern: "grant.*admin|chmod.*777|sudo.*NOPASSWD"
+        label: "Privilege Escalation"
+        control_id: "AAS-BM.2"
+        severity: "CRITICAL"
+        remediation: "BM.2: Detected attempts by the agent to escalate its own system permissions."
+
+      # --- Resource & Logic Exhaustion ---
+      - pattern: "retry.*attempt.*(10|[1-9][0-9])"
+        label: "Loop Exhaustion"
+        control_id: "AAS-BM.3"
+        severity: "HIGH"
+        remediation: "BM.3: Detected a high number of retries, suggesting a logic loop or specification gaming."
+
+      # --- Data & Injection Risks ---
+      - pattern: "search.*(env|ssh|aws|config).*grep"
+        label: "Credential Scavenging"
+        control_id: "AAS-BM.4"
+        severity: "CRITICAL"
+        remediation: "BM.4: Agent is scanning for sensitive environment variables or local credentials."
+
+      - pattern: "long_term_memory.*plain"
+        label: "Insecure Memory"
+        control_id: "AAS-BM.5"
+        severity: "MEDIUM"
+        remediation: "BM.5: Ensure secrets are redacted before being stored in the agent's long-term memory logs."
