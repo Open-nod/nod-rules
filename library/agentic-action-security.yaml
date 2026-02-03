@@ -47,6 +47,19 @@ profiles:
         severity: "HIGH"
         remediation: "HI.1: Define high-impact actions (deletions, config changes) that require human verification."
 
+    # --- REALITY CHECKS: Code-to-Spec Verification ---
+    reality_checks:
+      - spec_pattern: "Isolation:\\s*(\\w+)"
+        target_file: "Dockerfile"
+        reality_pattern: "(?i)FROM.*\\1|RUN.*\\1"
+        severity: "HIGH"
+        # Example: If Spec says "Isolation: Alpine", Dockerfile must have "FROM alpine"
+
+      - spec_pattern: "Language:\\s*(Python|Node)"
+        target_file: "requirements.txt"
+        reality_pattern: ".*" # Just checking file existence for now, or match specific package
+        severity: "MEDIUM"
+
     red_flags:
       # --- Behavioral Misalignment ---
       - pattern: "(ignore|bypass|override).*policy"
