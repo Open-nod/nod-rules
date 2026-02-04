@@ -1,0 +1,70 @@
+# nod Compliance Pack: Agent Supply Chain Integrity
+# Focus: Provenance, Identity, and Capability Manifests
+# Use this for: Verifying the origin and static permissions of an agent skill before installation.
+
+profiles:
+  agent_supply_chain:
+    badge_label: "Supply Chain Verified"
+    
+    requirements:
+      # --- 1. Provenance & Audit Trail (The "Chain of Custody") ---
+      # Requirement: Skills must verify who built them and who audited them.
+      - id: "provenance-identity-check"
+        label: "Provenance Trail"
+        control_id: "ASC-PV.1"
+        severity: "CRITICAL"
+        files: ["skill.yaml", "manifest.json", "**/*.skill", "AGENTS.md"]
+        must_contain:
+          - "Author"
+          - "Provenance"
+        remediation: "ASC-PV.1: The skill must document a provenance chain (Author, Maintainer, or Auditor) to establish trust."
+
+      # --- 2. Cryptographic Identity ---
+      # Requirement: A cryptographic signature field to prevent tampering.
+      - id: "require-cryptographic-signature"
+        label: "Cryptographic Signature"
+        control_id: "ASC-ID.1"
+        severity: "CRITICAL"
+        files: ["skill.yaml", "manifest.json", "package.json"]
+        patterns:
+          - field: "Signature"
+            # Matches standard signature fields (PGP, SSH, generic hash)
+            regex: "(?i)(signature|fingerprint|hash)(\"|:)\\s*[\"']?[A-Fa-f0-9\\+/=]{32,}[\"']?"
+            message: "ASC-ID.1: No cryptographic signature found. Skills must be signed to verify integrity."
+
+      # --- 3. Permission Manifests (Declarative Access) ---
+      # Requirement: Explicit declaration of what the agent can access.
+      - id: "mandate-permission-manifest"
+        label: "Capability Manifest"
+        control_id: "ASC-PM.1"
+        severity: "HIGH"
+        files: ["skill.yaml", "manifest.json", "capabilities.json"]
+        must_contain:
+          - "permissions"
+        remediation: "ASC-PM.1: The skill is missing a 'permissions' block. Capabilities must be explicitly declared."
+
+      # --- 4. Community/Security Attestation ---
+      # Requirement: Evidence of prior security scans (Collective Immunity).
+      - id: "security-scan-attestation"
+        label: "Security Attestation"
+        control_id: "ASC-SA.1"
+        severity: "MEDIUM"
+        files: ["SECURITY.md", "manifest.json", "skill.yaml"]
+        patterns:
+          - field: "Scan Metadata"
+            regex: "(?i)(scan_date|audit_log|yara_check|verified_by)"
+            message: "ASC-SA.1: No security attestation found. Include metadata about recent security scans."
+
+    red_flags:
+      # --- Dangerous Permission Scoping ---
+      - pattern: "(?i)(permissions|scopes).*(\\*|ALL|ROOT|ADMIN)"
+        label: "Over-Permissive Wildcard"
+        control_id: "ASC-RF.1"
+        severity: "CRITICAL"
+        remediation: "ASC-RF.1: Wildcard (*) or ROOT permissions are strictly forbidden in the manifest."
+
+      - pattern: "(?i)(http://|ftp://)"
+        label: "Insecure Transport"
+        control_id: "ASC-RF.2"
+        severity: "HIGH"
+        remediation: "ASC-RF.2: Manifest references insecure protocols (HTTP/FTP). Use HTTPS only."
