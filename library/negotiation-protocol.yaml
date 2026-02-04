@@ -1,0 +1,73 @@
+# nod Rules File (negotiation-protocol.yaml)
+# Purpose: Dynamic validation for Agent-to-Agent (A2A) Contract Negotiation.
+# Use Case: A "Host" agent generates this to challenge a "Guest" agent.
+
+name: "A2A Trust Negotiation"
+version: "1.1.0"
+description: "Verify that a Guest Agent's manifest and skills comply with Host-specific safety redlines."
+
+profiles:
+  negotiated_trust_handshake:
+    badge_label: "Contract Compliant"
+
+    requirements:
+      # --- 1. Data Sovereignty (The "No-Persistence" Guarantee) ---
+      # Host demands that Guest does not log or store provided sensitive context.
+      - id: "zero-retention-policy"
+        label: "Data Sovereignty"
+        severity: "CRITICAL"
+        files: ["manifest.json", "AGENTS.md", "config.yaml"]
+        must_contain:
+          - "RETENTION_POLICY: ZERO"
+          - "EPHEMERAL_CONTEXT: TRUE"
+        remediation: "The Host requires Zero-Retention. Update your manifest to explicitly disable context logging."
+
+      # --- 2. Inference Transparency ---
+      # Host demands to know which model is being used to verify reasoning quality.
+      - id: "model-tier-validation"
+        label: "Inference Transparency"
+        severity: "HIGH"
+        files: ["metadata.json", "skill.yaml"]
+        patterns:
+          - field: "model_id"
+            regex: "(gpt-4o|claude-3-5|o1|gemini-1.5-pro)"
+            message: "Host requires high-reasoning models for this task. Sub-tier models are rejected."
+
+      # --- 3. Capability Redlines ---
+      # Host forbids specific tools during this specific session (e.g., No Internet).
+      - id: "forbidden-tooling-redline"
+        label: "Capability Restriction"
+        severity: "CRITICAL"
+        files: ["capabilities.json", "skill.md"]
+        red_flags:
+          - pattern: "(?i)(network_access|curl|requests|urllib)"
+            label: "Internet Access Forbidden"
+            severity: "CRITICAL"
+            remediation: "This specific task is Air-Gapped. Disable all network-out tools."
+
+      # --- 4. Budgetary & Token Governance ---
+      # Host ensures the guest won't drain the Host's credits/token window.
+      - id: "token-budget-limit"
+        label: "Resource Governance"
+        severity: "MEDIUM"
+        files: ["config.json", "manifest.yaml"]
+        patterns:
+          - field: "max_tokens_per_call"
+            regex: "^([1-9][0-9]{0,3}|[1-3][0-9]{4}|40000)$" # Limits to <= 40,000
+            message: "Guest must define a token ceiling below 40k to prevent resource exhaustion."
+
+    red_flags:
+      # --- Conflict of Interest / Sub-Agents ---
+      # Host forbids the Guest from hiring further agents (Recursion control).
+      - pattern: "(?i)(delegate_to|spawn_agent|recursive_call)"
+        label: "No Recursive Delegation"
+        severity: "HIGH"
+        remediation: "Host forbids sub-agent spawning for this session. Guest must execute locally."
+
+      # --- Verification Proof ---
+      # Guest must provide a timestamped hash of its logic to prevent 'Bait & Switch'.
+      - pattern: "verification_hash: .*"
+        label: "Logic Integrity"
+        severity: "CRITICAL"
+        inverse: true # Fails if the pattern is MISSING
+        remediation: "Guest must provide a 'verification_hash' to prove the code being scanned is the code being run."
