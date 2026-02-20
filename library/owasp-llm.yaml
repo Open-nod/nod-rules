@@ -22,54 +22,297 @@ profiles:
       # LLM03: Training Data Poisoning
       - id: "#+.*(Training Data Security|Data Sanitization)"
         label: "Data Poisoning Defense"
+# nod Compliance Pack: OWASP Top 10 for LLM Applications
+# Version: 2.0.0 (Complete coverage of LLM01-LLM10)
+# Protocol: nod Attestation Protocol v0.1.0
+# contract_complete: true — all HIGH and CRITICAL rules carry evidence schemas
+
+profiles:
+  owasp_llm_top10:
+    badge_label: "OWASP LLM Top 10 Aligned"
+    contract_complete: true
+    contract_version: "0.1.0"
+
+    requirements:
+
+      # ── LLM01: Prompt Injection ───────────────────────────────────────────────
+
+      - id: "#+.*(Input Validation|Prompt Injection)"
+        rule_id: "OWASP-LLM01-prompt-injection"
+        label: "Prompt Injection Defense"
+        control_id: "LLM01"
+        severity: "CRITICAL"
+        remediation: "LLM01: Define guardrails to prevent prompt injection (e.g., delimiters, parameterization)."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented definition of prompt injection defenses implemented in the
+            system. Must describe specific technical controls — input delimiters,
+            parameterization, instruction hierarchy separation, or equivalent.
+            A general statement that prompt injection is addressed is not sufficient.
+            Must include the specific mechanism and where it is applied in the pipeline.
+          fields:
+            - name: "defense_mechanism"
+              required: true
+              description: "The specific technical control used to prevent prompt injection."
+            - name: "application_point"
+              required: true
+              description: "Where in the pipeline the defense is applied (e.g., input preprocessing, system prompt construction)."
+            - name: "test_coverage"
+              required: true
+              description: "Whether injection defense has been tested and the result."
+              valid_values: ["tested_passing", "tested_failing", "not_yet_tested"]
+            - name: "last_reviewed"
+              required: true
+              description: "Date this defense definition was last reviewed."
+              format: "ISO8601"
+          producer: "hybrid"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
+
+      # ── LLM02: Insecure Output Handling ──────────────────────────────────────
+
+      - id: "#+.*Output Sanitization"
+        rule_id: "OWASP-LLM02-output-handling"
+        label: "Output Handling"
+        control_id: "LLM02"
+        severity: "HIGH"
+        remediation: "LLM02: Output must be sanitized to prevent XSS or downstream code execution."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented definition of output sanitization controls applied to
+            LLM-generated content before it is rendered or passed downstream.
+            Must describe what sanitization is applied, where, and what output
+            types are in scope (HTML, code, structured data, etc.).
+          fields:
+            - name: "sanitization_mechanism"
+              required: true
+              description: "The specific sanitization approach applied to LLM output."
+            - name: "output_types_in_scope"
+              required: true
+              description: "The types of LLM output subject to sanitization (e.g., HTML, code, JSON)."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this output handling definition was last reviewed."
+              format: "ISO8601"
+          producer: "hybrid"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
+
+      # ── LLM03: Training Data Poisoning ────────────────────────────────────────
+
+      - id: "#+.*(Training Data Security|Data Sanitization)"
+        rule_id: "OWASP-LLM03-data-poisoning"
+        label: "Data Poisoning Defense"
         control_id: "LLM03"
         severity: "HIGH"
         remediation: "LLM03: Document data provenance, sandboxing, and sanitization to prevent training data poisoning."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of controls applied to training, fine-tuning,
+            and RAG data sources to prevent data poisoning. Must describe data
+            provenance verification, sanitization procedures, and any sandboxing
+            applied during data processing. Must cover all data sources — not
+            just primary training data.
+          fields:
+            - name: "data_sources_covered"
+              required: true
+              description: "The data sources subject to poisoning defense controls."
+            - name: "provenance_verification"
+              required: true
+              description: "How data provenance is verified before use."
+            - name: "sanitization_procedure"
+              required: true
+              description: "The sanitization steps applied to data before use in the model."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this data security documentation was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "ML Engineer or Data Owner"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
-      # LLM04: Model Denial of Service
+      # ── LLM04: Model Denial of Service ───────────────────────────────────────
+
       - id: "#+.*(Rate Limiting|Resource Management)"
+        rule_id: "OWASP-LLM04-dos-protection"
         label: "DoS Protection"
         control_id: "LLM04"
         severity: "MEDIUM"
         remediation: "LLM04: Define resource limits (context window, inference caps) to prevent Model DoS."
 
-      # LLM05: Supply Chain Vulnerabilities
+      # ── LLM05: Supply Chain Vulnerabilities ───────────────────────────────────
+
       - id: "#+.*(Supply Chain|Model Provenance)"
+        rule_id: "OWASP-LLM05-supply-chain"
         label: "Supply Chain Security"
         control_id: "LLM05"
         severity: "HIGH"
         remediation: "LLM05: Verify integrity of third-party models and datasets (e.g., SBOM, signatures)."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented supply chain security posture for third-party models,
+            datasets, and libraries used in the AI system. Must describe how
+            component integrity is verified, what provenance information is
+            maintained, and how supply chain risks are tracked. An SBOM or
+            equivalent component inventory must be referenced or included.
+          fields:
+            - name: "component_inventory"
+              required: true
+              description: "Reference to the SBOM or component inventory for this system."
+            - name: "integrity_verification"
+              required: true
+              description: "How the integrity of third-party components is verified (e.g., checksums, signatures)."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this supply chain documentation was last reviewed."
+              format: "ISO8601"
+          producer: "pipeline"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
-      # LLM06: Sensitive Information Disclosure
+      # ── LLM06: Sensitive Information Disclosure ───────────────────────────────
+
       - id: "#+.*(PII Filtering|Data Leakage)"
+        rule_id: "OWASP-LLM06-sensitive-disclosure"
         label: "Sensitive Info Disclosure"
         control_id: "LLM06"
         severity: "CRITICAL"
         remediation: "LLM06: Define mechanisms to detect and filter sensitive information (PII) in output."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented definition of PII and sensitive information detection
+            and filtering controls applied to LLM output. Must identify what
+            categories of sensitive information are in scope, what detection
+            mechanism is used, and what action is taken when sensitive content
+            is detected. Must cover both structured and unstructured output types.
+          fields:
+            - name: "sensitive_data_categories"
+              required: true
+              description: "The categories of sensitive information the filter addresses (e.g., PII, credentials, confidential business data)."
+            - name: "detection_mechanism"
+              required: true
+              description: "The technical approach used to detect sensitive content in output."
+            - name: "response_action"
+              required: true
+              description: "What action is taken when sensitive content is detected (e.g., redact, block, alert)."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this filtering definition was last reviewed."
+              format: "ISO8601"
+          producer: "hybrid"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
-      # LLM07: Insecure Plugin Design
+      # ── LLM07: Insecure Plugin Design ────────────────────────────────────────
+
       - id: "#+.*(Plugin Security|Extension Architecture)"
+        rule_id: "OWASP-LLM07-plugin-security"
         label: "Plugin Security"
         control_id: "LLM07"
         severity: "HIGH"
         remediation: "LLM07: Plugins must enforce strict parameterized inputs and least-privilege access."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented plugin or extension security architecture describing how
+            plugins receive inputs, what permissions they are granted, and how
+            least-privilege is enforced. Must cover all plugins or tool integrations
+            available to the LLM. If no plugins exist, attest not_applicable with
+            a clear statement that the system has no plugin or tool integrations.
+          fields:
+            - name: "plugins_in_scope"
+              required: true
+              description: "The plugins or tool integrations covered by this documentation."
+            - name: "input_parameterization"
+              required: true
+              description: "How plugin inputs are parameterized to prevent injection."
+            - name: "permission_model"
+              required: true
+              description: "The permission model governing what plugins can access or modify."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this plugin security documentation was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "Security Architect or ML Engineer"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
-      # LLM08: Excessive Agency
+      # ── LLM08: Excessive Agency ───────────────────────────────────────────────
+
       - id: "#+.*(Permissions|Human-in-the-Loop)"
+        rule_id: "OWASP-LLM08-excessive-agency"
         label: "Agency & Permissions"
         control_id: "LLM08"
         severity: "HIGH"
         remediation: "LLM08: Limit agent autonomy. Define permission scopes and required human approval steps."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented definition of the agent's permission scope and the human
+            approval requirements for high-impact actions. Must enumerate what
+            actions the agent can take autonomously and what actions require human
+            review or approval before execution. Must define the criteria for
+            classifying an action as high-impact.
+          fields:
+            - name: "autonomous_actions"
+              required: true
+              description: "Actions the agent can execute without human approval."
+            - name: "human_approval_required"
+              required: true
+              description: "Actions that require human review or approval before execution."
+            - name: "high_impact_criteria"
+              required: true
+              description: "The criteria used to classify an action as requiring human approval."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this agency definition was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "Security Architect or AI Program Manager"
+          cadence: "on_change"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
-      # LLM09: Overreliance
+      # ── LLM09: Overreliance ───────────────────────────────────────────────────
+
       - id: "#+.*(Disclaimers|Citation)"
+        rule_id: "OWASP-LLM09-overreliance"
         label: "Overreliance Prevention"
         control_id: "LLM09"
         severity: "MEDIUM"
         remediation: "LLM09: Document how users are informed of AI limitations (e.g., citations, confidence scores)."
 
-      # LLM10: Model Theft
+      # ── LLM10: Model Theft ────────────────────────────────────────────────────
+
       - id: "#+.*(Intellectual Property|Access Control)"
+        rule_id: "OWASP-LLM10-model-theft"
         label: "Model Theft Protection"
         control_id: "LLM10"
         severity: "MEDIUM"
