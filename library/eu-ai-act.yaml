@@ -1,103 +1,354 @@
 # nod Compliance Pack: EU AI Act (High-Risk Focus)
 # Regulation 2024/1689
+# Version: 2.0.0
+# Protocol: nod Attestation Protocol v0.1.0
+# contract_complete: true — all HIGH and CRITICAL rules carry evidence schemas
 
 profiles:
   eu_ai_act:
     badge_label: "EU AI Act Aligned"
-    
-    # Conditional Logic: Skip strict Article 14/15/15 requirements if the system is explicitly documented as Low Risk.
+    contract_complete: true
+    contract_version: "0.1.0"
+
+    # Conditional Logic: Skip strict Article 14/15 requirements if the system
+    # is explicitly documented as Low Risk.
     conditions:
       - if:
           regex_match: "Risk Categorization.*(Low|Minimal|No Risk)"
         then:
-          skip: 
+          skip:
             - "Human Oversight Measures"
             - "Robustness Measures"
             - "Cybersecurity Measures"
 
     requirements:
-      # Article 6 & Annex III
+
+      # ── Article 6 & Annex III: Risk Categorization ───────────────────────────
+
       - id: "#+.*Risk Categorization"
+        rule_id: "EU-AIA-6-risk-categorization"
         label: "Risk Categorization"
         article: "Article 6 / Annex III"
+        control_id: "EU-AIA-6"
         severity: "CRITICAL"
         remediation: "Mandatory: Categorize the system according to EU AI Act Annex III (High-Risk/Prohibited)."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented risk categorization determination for this AI system under
+            the EU AI Act. Must state the assigned risk category with explicit
+            reference to the Annex III criteria applied, or a reasoned determination
+            that no Annex III criteria apply. Must be signed off by a responsible
+            party with authority to make this determination. A categorization of
+            High-Risk triggers additional mandatory documentation requirements.
+          fields:
+            - name: "risk_category"
+              required: true
+              description: "The assigned risk category for this system."
+              valid_values: ["Prohibited", "High-Risk", "Limited-Risk", "Minimal-Risk"]
+            - name: "annex_iii_criteria"
+              required: true
+              description: "The specific Annex III criteria evaluated, or 'none applicable' with rationale."
+            - name: "determination_owner"
+              required: true
+              description: "The role or individual who made and signed off on this determination."
+            - name: "determination_date"
+              required: true
+              description: "The date this determination was made."
+              format: "ISO8601"
+            - name: "next_review_date"
+              required: true
+              description: "The scheduled date for the next categorization review."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "Legal Counsel or AI Compliance Lead"
+          cadence: "annually"
+          retention: "10 years"
+          verification:
+            method: "human_review"
 
-      # Article 10: Data Governance
+      # ── Article 10: Data Governance ───────────────────────────────────────────
+
       - id: "Training Data Sources"
+        rule_id: "EU-AIA-10-training-data"
         label: "Training Data"
         article: "Article 10"
+        control_id: "EU-AIA-10-data"
         severity: "HIGH"
         remediation: "Article 10: Explicitly describe training, validation, and testing data sources."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of training, validation, and testing data sources
+            used in the AI system. Must cover data origin, collection methodology,
+            licensing or rights basis, and any known limitations of each dataset.
+            Must address all three data categories separately — training, validation,
+            and test data. A single generic statement covering all three is not sufficient.
+          fields:
+            - name: "training_data_source"
+              required: true
+              description: "The origin and description of training data."
+            - name: "validation_data_source"
+              required: true
+              description: "The origin and description of validation data."
+            - name: "test_data_source"
+              required: true
+              description: "The origin and description of test data."
+            - name: "data_rights_basis"
+              required: true
+              description: "The legal or contractual basis for using each data source."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this data source documentation was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "Data Owner or ML Engineer"
+          cadence: "per_release"
+          retention: "10 years"
+          verification:
+            method: "schema_match"
 
       - id: "Bias Mitigation Strategy"
+        rule_id: "EU-AIA-10-bias-mitigation"
         label: "Bias Mitigation"
         article: "Article 10"
+        control_id: "EU-AIA-10-bias"
         severity: "HIGH"
         remediation: "Article 10: Detail strategies used to detect and mitigate bias in datasets."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented bias mitigation strategy describing how bias in training,
+            validation, and test datasets is detected and addressed. Must include
+            specific detection techniques, the bias types targeted, and the
+            mitigation measures applied. Must reference the results of bias
+            detection activities — not just the intent to perform them.
+          fields:
+            - name: "bias_types_addressed"
+              required: true
+              description: "The categories of bias the strategy targets (e.g., representation bias, measurement bias)."
+            - name: "detection_technique"
+              required: true
+              description: "The specific technique used to detect bias in datasets."
+            - name: "mitigation_measures"
+              required: true
+              description: "The measures applied to mitigate detected bias."
+            - name: "last_detection_date"
+              required: true
+              description: "The date bias detection was last performed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "ML Engineer or AI Risk Owner"
+          cadence: "per_release"
+          retention: "10 years"
+          verification:
+            method: "schema_match"
 
-      # Article 11: Technical Documentation
+      # ── Article 11: Technical Documentation ──────────────────────────────────
+
       - id: "Technical Documentation"
+        rule_id: "EU-AIA-11-technical-docs"
         label: "Technical Docs"
         article: "Article 11"
+        control_id: "EU-AIA-11"
         severity: "HIGH"
         remediation: "Article 11: Ensure technical documentation (Annex IV) is referenced or included."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A reference to or inclusion of technical documentation conforming to
+            Annex IV of the EU AI Act. Must be maintained and kept up to date
+            throughout the system lifecycle. At minimum, the documentation must
+            cover the system's general description, design specifications, training
+            methodology, and performance metrics. For High-Risk systems, full
+            Annex IV compliance is required.
+          fields:
+            - name: "documentation_reference"
+              required: true
+              description: "The location or identifier of the Annex IV technical documentation."
+            - name: "annex_iv_coverage"
+              required: true
+              description: "Confirmation of which Annex IV sections are covered."
+            - name: "documentation_version"
+              required: true
+              description: "The current version of the technical documentation."
+            - name: "last_updated"
+              required: true
+              description: "Date the technical documentation was last updated."
+              format: "ISO8601"
+          producer: "hybrid"
+          cadence: "on_change"
+          retention: "10 years"
+          verification:
+            method: "schema_match"
 
-      # Article 12: Record Keeping
+      # ── Article 12: Record Keeping ────────────────────────────────────────────
+
       - id: "Logging Capabilities"
+        rule_id: "EU-AIA-12-logging"
         label: "System Logging"
         article: "Article 12"
+        control_id: "EU-AIA-12-log"
         severity: "MEDIUM"
         remediation: "Article 12: System must generate logs enabling traceability of functioning."
 
       - id: "Record Keeping"
+        rule_id: "EU-AIA-12-retention"
         label: "Retention Policy"
         article: "Article 12"
+        control_id: "EU-AIA-12-retention"
         severity: "MEDIUM"
         remediation: "Article 12: Define retention periods and storage for system logs."
 
-      # Article 14: Human Oversight
+      # ── Article 14: Human Oversight ───────────────────────────────────────────
+
       - id: "Human Oversight Measures"
+        rule_id: "EU-AIA-14-human-oversight"
         label: "Human Oversight"
         article: "Article 14"
+        control_id: "EU-AIA-14"
         severity: "HIGH"
         remediation: "Article 14: Describe measures for human oversight (human-in-the-loop, human-on-the-loop)."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of human oversight measures implemented for
+            this AI system. Must describe whether the system operates with
+            human-in-the-loop, human-on-the-loop, or human-in-command oversight,
+            and what mechanisms allow humans to intervene, override, or stop the
+            system. Must be specific to the deployment context — generic oversight
+            policy statements are not sufficient.
+          fields:
+            - name: "oversight_model"
+              required: true
+              description: "The oversight model applied to this system."
+              valid_values: ["human-in-the-loop", "human-on-the-loop", "human-in-command", "hybrid"]
+            - name: "intervention_mechanism"
+              required: true
+              description: "How a human can intervene, override, or stop the system during operation."
+            - name: "oversight_owner"
+              required: true
+              description: "The role responsible for human oversight during system operation."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this oversight documentation was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "AI Program Manager or System Owner"
+          cadence: "annually"
+          retention: "10 years"
+          verification:
+            method: "human_review"
 
-      # Article 15: Accuracy, Robustness, Cybersecurity
+      # ── Article 15: Accuracy, Robustness, Cybersecurity ──────────────────────
+
       - id: "Robustness Measures"
+        rule_id: "EU-AIA-15-robustness"
         label: "Robustness"
         article: "Article 15"
+        control_id: "EU-AIA-15-robustness"
         severity: "HIGH"
         remediation: "Article 15: Specify resilience against errors, faults, and unexpected situations."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of robustness measures implemented to make
+            the AI system resilient against errors, faults, inconsistencies, and
+            unexpected inputs. Must describe specific technical controls and
+            reference any testing performed to validate robustness. Must cover
+            both operational robustness and resilience against adversarial inputs.
+          fields:
+            - name: "robustness_controls"
+              required: true
+              description: "The specific technical controls implemented for robustness."
+            - name: "testing_performed"
+              required: true
+              description: "Robustness testing activities completed and their outcomes."
+            - name: "known_limitations"
+              required: true
+              description: "Known robustness limitations of the system."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this robustness documentation was last reviewed."
+              format: "ISO8601"
+          producer: "hybrid"
+          cadence: "per_release"
+          retention: "10 years"
+          verification:
+            method: "schema_match"
 
       - id: "Cybersecurity Measures"
+        rule_id: "EU-AIA-15-cybersecurity"
         label: "Cybersecurity"
         article: "Article 15"
+        control_id: "EU-AIA-15-cyber"
         severity: "HIGH"
         remediation: "Article 15: Detail protection against adversarial attacks (poisoning, evasion)."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of cybersecurity measures protecting the AI
+            system against adversarial attacks including data poisoning, model
+            evasion, model extraction, and inference attacks. Must describe specific
+            technical controls implemented and reference any adversarial testing
+            performed. Must cover both the model itself and the surrounding
+            infrastructure.
+          fields:
+            - name: "adversarial_threats_addressed"
+              required: true
+              description: "The adversarial attack types the cybersecurity measures address."
+            - name: "technical_controls"
+              required: true
+              description: "The specific cybersecurity controls implemented."
+            - name: "adversarial_testing"
+              required: false
+              description: "Any adversarial testing performed and the outcomes."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this cybersecurity documentation was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "Security Engineer or AI Security Lead"
+          cadence: "per_release"
+          retention: "10 years"
+          verification:
+            method: "schema_match"
 
     red_flags:
-      # Article 5: Prohibited Practices
+      # ── Article 5: Prohibited Practices ──────────────────────────────────────
+
       - pattern: "real-time biometric identification"
+        rule_id: "EU-AIA-5-biometric-ban"
         label: "Biometric ID Ban"
         article: "Article 5"
         severity: "CRITICAL"
         remediation: "Prohibited (Art 5): Remote biometric ID in public spaces is banned."
 
       - pattern: "social scoring"
+        rule_id: "EU-AIA-5-social-scoring-ban"
         label: "Social Scoring Ban"
         article: "Article 5"
         severity: "CRITICAL"
         remediation: "Prohibited (Art 5): AI systems cannot be used for social scoring."
 
       - pattern: "subliminal techniques"
+        rule_id: "EU-AIA-5-subliminal-ban"
         label: "Subliminal Tech Ban"
         article: "Article 5"
         severity: "CRITICAL"
         remediation: "Prohibited (Art 5): Techniques deploying subliminal messaging are banned."
 
       - pattern: "emotion recognition.*workplace"
+        rule_id: "EU-AIA-5-emotion-recognition-ban"
         label: "Emotion Recog. Ban"
         article: "Article 5"
         severity: "CRITICAL"
         remediation: "Prohibited (Art 5): Emotion recognition in workplace/education is banned."
+        
