@@ -1,28 +1,4 @@
 # nod Compliance Pack: OWASP Top 10 for LLM Applications
-# Version: 1.2 (Complete coverage of LLM01-LLM10)
-
-profiles:
-  owasp_llm_top10:
-    badge_label: "OWASP LLM Top 10 Aligned"
-    requirements:
-      # LLM01: Prompt Injection
-      - id: "#+.*(Input Validation|Prompt Injection)"
-        label: "Prompt Injection Defense"
-        control_id: "LLM01"
-        severity: "CRITICAL"
-        remediation: "LLM01: Define guardrails to prevent prompt injection (e.g., delimiters, parameterization)."
-
-      # LLM02: Insecure Output Handling
-      - id: "#+.*Output Sanitization"
-        label: "Output Handling"
-        control_id: "LLM02"
-        severity: "HIGH"
-        remediation: "LLM02: Output must be sanitized to prevent XSS or downstream code execution."
-
-      # LLM03: Training Data Poisoning
-      - id: "#+.*(Training Data Security|Data Sanitization)"
-        label: "Data Poisoning Defense"
-# nod Compliance Pack: OWASP Top 10 for LLM Applications
 # Version: 2.0.0 (Complete coverage of LLM01-LLM10)
 # Protocol: nod Attestation Protocol v0.1.0
 # contract_complete: true — all HIGH and CRITICAL rules carry evidence schemas
@@ -317,3 +293,4 @@ profiles:
         control_id: "LLM10"
         severity: "MEDIUM"
         remediation: "LLM10: Define access controls, watermarking, or logging to detect/prevent model extraction."
+        
