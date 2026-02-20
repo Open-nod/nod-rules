@@ -1,86 +1,314 @@
 # nod Compliance Pack: NIST AI RMF
 # Focus: Govern, Map, Measure, Manage (Trustworthy AI)
+# Version: 2.0.0
+# Protocol: nod Attestation Protocol v0.1.0
+# contract_complete: true — all HIGH and CRITICAL rules carry evidence schemas
 
 profiles:
   nist_ai_rmf:
     badge_label: "NIST AI RMF Aligned"
+    contract_complete: true
+    contract_version: "0.1.0"
+
     requirements:
-      # --- GOVERN: Culture & Roles ---
+
+      # ── GOVERN: Culture & Roles ──────────────────────────────────────────────
+
       - id: "#+.*Roles and Responsibilities"
+        rule_id: "NIST-GOVERN-1.2-roles"
         label: "AI Roles"
         control_id: "GOVERN-1.2"
         severity: "MEDIUM"
         remediation: "GOVERN 1.2: Define specific roles for the AI lifecycle."
 
       - id: "#+.*Accountability Structure"
+        rule_id: "NIST-GOVERN-1.2-accountability"
         label: "Accountability"
         control_id: "GOVERN-1.2"
         severity: "MEDIUM"
         remediation: "GOVERN 1.2: Define accountability chains for system outcomes."
 
       - id: "#+.*Legal Review"
+        rule_id: "NIST-GOVERN-1.3-legal"
         label: "Legal Compliance"
         control_id: "GOVERN-1.3"
         severity: "MEDIUM"
         remediation: "GOVERN 1.3: Evidence of legal/regulatory review processes."
 
-      # --- MAP: Context & Impact ---
+      # ── MAP: Context & Impact ────────────────────────────────────────────────
+
       - id: "#+.*Context and Goals"
+        rule_id: "NIST-MAP-1.1-context"
         label: "System Context"
         control_id: "MAP-1.1"
         severity: "HIGH"
         remediation: "MAP 1.1: Document the context and business goals of the system."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of the AI system's operational context, intended
+            use cases, and business objectives. Must be specific to this system — not
+            a generic product description. Must include the deployment environment and
+            the population of users or subjects affected.
+          fields:
+            - name: "system_name"
+              required: true
+              description: "The name of the AI system this context describes."
+            - name: "business_goal"
+              required: true
+              description: "The primary business objective this system serves."
+            - name: "deployment_context"
+              required: true
+              description: "Where and how the system is deployed (e.g., production SaaS, internal tool, embedded API)."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this context document was last reviewed."
+              format: "ISO8601"
+          producer: "hybrid"
+          cadence: "on_change"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
       - id: "#+.*Impact Assessment"
+        rule_id: "NIST-MAP-1.1-impact"
         label: "Impact Analysis"
         control_id: "MAP-1.1"
         severity: "HIGH"
         remediation: "MAP 1.1: Analyze potential negative impacts on stakeholders."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented analysis of potential negative impacts on individuals, groups,
+            or society resulting from system failures, misuse, or unintended outputs.
+            Must identify specific affected stakeholder groups and rate impact severity.
+            Must not be a generic risk list — must be specific to this system's use case.
+          fields:
+            - name: "impact_domain"
+              required: true
+              description: "The domain of potential negative impact (e.g., privacy, safety, fairness)."
+            - name: "affected_stakeholders"
+              required: true
+              description: "The specific groups or individuals who could be negatively affected."
+            - name: "severity_rating"
+              required: true
+              description: "The assessed severity of potential negative impact."
+              valid_values: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+            - name: "last_reviewed"
+              required: true
+              description: "Date this impact assessment was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "AI Risk Owner"
+          cadence: "annually"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
       - id: "#+.*Third-Party Risks"
+        rule_id: "NIST-MAP-1.3-supply-chain"
         label: "Supply Chain Risk"
         control_id: "MAP-1.3"
         severity: "MEDIUM"
         remediation: "MAP 1.3: Identify risks related to third-party software or data."
 
-      # --- MEASURE: Metrics & Evaluation ---
+      # ── MEASURE: Metrics & Evaluation ────────────────────────────────────────
+
       - id: "#+.*Bias Metrics"
+        rule_id: "NIST-MEASURE-2.2-bias"
         label: "Bias Metrics"
         control_id: "MEASURE-2.2"
         severity: "HIGH"
         remediation: "MEASURE 2.2: Define specific metrics used to quantify bias."
+        evidence:
+          required: true
+          artifact_type: "test_result"
+          description: >
+            Results from a bias evaluation run against the deployed or candidate model
+            using a defined metric. Must include the metric name, computed value,
+            evaluation date, and tool used. Must be actual evaluation output —
+            not a description of intended evaluation.
+          fields:
+            - name: "metric_name"
+              required: true
+              description: "The name of the bias metric computed (e.g., Demographic Parity Difference)."
+            - name: "metric_value"
+              required: true
+              description: "The computed metric value as a decimal string."
+            - name: "evaluation_date"
+              required: true
+              description: "The date the evaluation was run."
+              format: "ISO8601"
+            - name: "evaluation_tool"
+              required: true
+              description: "The tool or library used to compute the metric (e.g., fairlearn-v0.10.0)."
+          producer: "pipeline"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
       - id: "#+.*Fairness Evaluation"
+        rule_id: "NIST-MEASURE-2.2-fairness"
         label: "Fairness Eval"
         control_id: "MEASURE-2.2"
         severity: "HIGH"
         remediation: "MEASURE 2.2: Describe how fairness is evaluated against the defined metrics."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented description of the fairness evaluation methodology — how
+            fairness metrics are interpreted, what thresholds constitute acceptable
+            fairness, and how evaluation results drive decisions about the system.
+            Must reference the specific metrics defined in the bias metrics section.
+          fields:
+            - name: "fairness_threshold"
+              required: true
+              description: "The metric value threshold below which the system is considered acceptably fair."
+            - name: "evaluation_methodology"
+              required: true
+              description: "The approach used to evaluate fairness against the defined metrics."
+            - name: "decision_criteria"
+              required: true
+              description: "What actions are taken when fairness thresholds are exceeded."
+            - name: "last_reviewed"
+              required: true
+              description: "Date this methodology was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "AI Risk Owner or ML Lead"
+          cadence: "annually"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
+            cross_reference:
+              rule_id: "NIST-MEASURE-2.2-bias"
+              relationship: "depends_on"
 
       - id: "#+.*Validation Results"
+        rule_id: "NIST-MEASURE-2.6-validation"
         label: "Validation Report"
         control_id: "MEASURE-2.6"
         severity: "HIGH"
         remediation: "MEASURE 2.6: Include summary results from system validation/verification."
+        evidence:
+          required: true
+          artifact_type: "test_result"
+          description: >
+            Summary results from system validation and verification activities.
+            Must include the validation scope, methodology, pass/fail outcomes,
+            and date of execution. Must not be a plan for future validation —
+            must be results from completed validation activities.
+          fields:
+            - name: "validation_scope"
+              required: true
+              description: "What aspects of the system were validated (e.g., accuracy, robustness, safety)."
+            - name: "validation_methodology"
+              required: true
+              description: "The approach used to validate the system."
+            - name: "overall_result"
+              required: true
+              description: "The overall outcome of the validation activity."
+              valid_values: ["PASSED", "FAILED", "CONDITIONAL_PASS", "IN_PROGRESS"]
+            - name: "validation_date"
+              required: true
+              description: "The date the validation was completed."
+              format: "ISO8601"
+          producer: "pipeline"
+          cadence: "per_release"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
 
-      # --- MANAGE: Treatment & Response ---
+      # ── MANAGE: Treatment & Response ─────────────────────────────────────────
+
       - id: "#+.*Incident Response Plan"
+        rule_id: "NIST-MANAGE-2.3-incident"
         label: "Incident Response"
         control_id: "MANAGE-2.3"
         severity: "HIGH"
         remediation: "MANAGE 2.3: Detail specific steps to respond to AI incidents."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented incident response plan specific to AI system failures,
+            including model degradation, bias drift, adversarial inputs, and data
+            pipeline failures. Must name specific response roles and escalation paths.
+            A general IT incident response plan is not sufficient without an
+            AI-specific annex or section.
+          fields:
+            - name: "plan_version"
+              required: true
+              description: "The version identifier of the incident response plan."
+            - name: "ai_specific_scenarios"
+              required: true
+              description: "List of AI-specific incident scenarios the plan addresses."
+            - name: "response_owner"
+              required: true
+              description: "The role or team responsible for executing the plan."
+            - name: "last_reviewed"
+              required: true
+              description: "Date the plan was last reviewed and approved."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "AI Program Manager or Security Lead"
+          cadence: "annually"
+          retention: "3 years"
+          verification:
+            method: "human_review"
 
       - id: "#+.*Risk Treatment Strategy"
+        rule_id: "NIST-MANAGE-2.3-risk-treatment"
         label: "Risk Treatment"
         control_id: "MANAGE-2.3"
         severity: "HIGH"
         remediation: "MANAGE 2.3: Define strategy (avoid, accept, transfer, mitigate) for identified risks."
+        evidence:
+          required: true
+          artifact_type: "document"
+          description: >
+            A documented risk treatment strategy mapping each identified risk to a
+            treatment decision — avoid, accept, transfer, or mitigate — with rationale.
+            Must reference risks identified in the impact assessment. Generic risk
+            treatment language without connection to specific identified risks is
+            not sufficient.
+          fields:
+            - name: "treatment_decision"
+              required: true
+              description: "The treatment decision applied to the primary risks."
+              valid_values: ["avoid", "accept", "transfer", "mitigate", "mixed"]
+            - name: "rationale"
+              required: true
+              description: "The rationale for the treatment decisions made."
+            - name: "residual_risk_level"
+              required: true
+              description: "The assessed residual risk level after treatment."
+              valid_values: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+            - name: "last_reviewed"
+              required: true
+              description: "Date this treatment strategy was last reviewed."
+              format: "ISO8601"
+          producer: "human"
+          producer_role: "AI Risk Owner"
+          cadence: "annually"
+          retention: "3 years"
+          verification:
+            method: "schema_match"
+            cross_reference:
+              rule_id: "NIST-MAP-1.1-impact"
+              relationship: "depends_on"
 
       - id: "#+.*Decommissioning Plan"
+        rule_id: "NIST-MANAGE-1.3-decommission"
         label: "Decommissioning"
         control_id: "MANAGE-1.3"
         severity: "LOW"
         remediation: "MANAGE 1.3: Plan for system decommissioning or model retirement."
-    
+
     red_flags:
       - pattern: "black box"
         label: "Black Box Arch"
